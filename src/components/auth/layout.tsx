@@ -44,9 +44,9 @@ export function Layout({ children }: LayoutProps): React.JSX.Element {
         <Stack spacing={3}>
           <Stack spacing={1}>
             <Typography color="inherit" sx={{ fontSize: '24px', lineHeight: '32px', textAlign: 'center' }} variant="h1">
-              Welcome to{' '}
+              Bienvenidos a{' '}
               <Box component="span" sx={{ color: '#15b79e' }}>
-                My App
+                MeatStock
               </Box>
             </Typography>
           </Stack>
@@ -54,8 +54,8 @@ export function Layout({ children }: LayoutProps): React.JSX.Element {
             <Box
               component="img"
               alt="Widgets"
-              src="/assets/auth-widgets.png"
-              sx={{ height: 'auto', width: '100%', maxWidth: '800px' }}
+              src="/assets/auth-widgets.svg"
+              sx={{ height: 'auto', width: '100%', maxWidth: '400px' }}
             />
           </Box>
         </Stack>

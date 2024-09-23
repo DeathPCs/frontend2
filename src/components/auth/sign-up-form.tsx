@@ -24,16 +24,27 @@ import { useUser } from '@/hooks/use-user';
 import { MenuItem, Select } from '@mui/material';
 
 const schema = zod.object({
-  userName: zod.string().min(1, { message: 'Last name is required' }),
-  email: zod.string().min(1, { message: 'Email is required' }).email(),
-  password: zod.string().min(6, { message: 'Password should be at least 6 characters' }),
-  terms: zod.boolean().refine((value) => value, 'You must accept the terms and conditions'),
-  userType: zod.string().min(1, { message: 'User type is required' })
+  userName: zod.string().min(1, { message: 'El nombre de usuario es requerido' }),
+  email: zod.string().min(1, { message: 'El correo electrónico es requerido' }).email(),
+  password: zod.string().min(6, { message: 'La contraseña debe tener al menos 6 carácteres' }),
+  confirmPassword: zod.string().min(6, { message: 'La confirmación de contraseña debe tener al menos 6 carácteres' }),
+  terms: zod.boolean().refine((value) => value, 'Tienes que aceptar los términos y condiciones'),
+  userType: zod.string().min(1, { message: 'El tipo de usuario es requerido' })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Las contraseñas deben coincidir',
+  path: ['confirmPassword'],
 });
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = {userType: '', userName: '', email: '', password: '', terms: false } satisfies Values;
+const defaultValues = {
+  userType: '',
+  userName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  terms: false,
+} satisfies Values;
 
 export function SignUpForm(): React.JSX.Element {
   const router = useRouter();
@@ -61,11 +72,7 @@ export function SignUpForm(): React.JSX.Element {
         return;
       }
 
-      // Refresh the auth state
       await checkSession?.();
-
-      // UserProvider, for this case, will not refresh the router
-      // After refresh, GuestGuard will handle the redirect
       router.refresh();
     },
     [checkSession, router, setError]
@@ -74,43 +81,38 @@ export function SignUpForm(): React.JSX.Element {
   return (
     <Stack spacing={3}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign up</Typography>
+        <Typography variant="h4">Registro de Usuario</Typography>
         <Typography color="text.secondary" variant="body2">
-          Already have an account?{' '}
+          ¿Ya tienes una cuenta?{' '}
           <Link component={RouterLink} href={paths.auth.signIn} underline="hover" variant="subtitle2">
-            Sign in
+            Inicia sesión
           </Link>
         </Typography>
       </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
-        <Controller
-          control={control}
-          name="userType"
-          render={({ field }) => (
-            <FormControl error={Boolean(errors.userType)}>
-              <InputLabel>Tipo de usuario</InputLabel>
-                <Select
-                  {...field}
-                  label="Tipo de usuario"
-                >
+          <Controller
+            control={control}
+            name="userType"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.userType)}>
+                <InputLabel>Tipo de usuario</InputLabel>
+                <Select {...field} label="Tipo de usuario">
                   <MenuItem value="administrador">Administrador</MenuItem>
                   <MenuItem value="almacen">Usuario de almacén</MenuItem>
                   <MenuItem value="vendedor">Vendedor</MenuItem>
                   <MenuItem value="gestor">Gestor alimentario</MenuItem>
                 </Select>
-                {errors.userType ? (
-                  <FormHelperText>{errors.userType.message}</FormHelperText>
-                ) : null}
+                {errors.userType ? <FormHelperText>{errors.userType.message}</FormHelperText> : null}
               </FormControl>
-           )}
+            )}
           />
           <Controller
             control={control}
             name="userName"
             render={({ field }) => (
               <FormControl error={Boolean(errors.userName)}>
-                <InputLabel>Username</InputLabel>
+                <InputLabel>Nombre de usuario</InputLabel>
                 <OutlinedInput {...field} label="User name" />
                 {errors.userName ? <FormHelperText>{errors.userName.message}</FormHelperText> : null}
               </FormControl>
@@ -121,7 +123,7 @@ export function SignUpForm(): React.JSX.Element {
             name="email"
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
+                <InputLabel>Correo electrónico</InputLabel>
                 <OutlinedInput {...field} label="Email address" type="email" />
                 {errors.email ? <FormHelperText>{errors.email.message}</FormHelperText> : null}
               </FormControl>
@@ -132,9 +134,22 @@ export function SignUpForm(): React.JSX.Element {
             name="password"
             render={({ field }) => (
               <FormControl error={Boolean(errors.password)}>
-                <InputLabel>Password</InputLabel>
+                <InputLabel>Contraseña</InputLabel>
                 <OutlinedInput {...field} label="Password" type="password" />
                 {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
+              </FormControl>
+            )}
+          />
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormControl error={Boolean(errors.confirmPassword)}>
+                <InputLabel>Confirmar contraseña</InputLabel>
+                <OutlinedInput {...field} label="Confirm Password" type="password" />
+                {errors.confirmPassword ? (
+                  <FormHelperText>{errors.confirmPassword.message}</FormHelperText>
+                ) : null}
               </FormControl>
             )}
           />
@@ -147,7 +162,7 @@ export function SignUpForm(): React.JSX.Element {
                   control={<Checkbox {...field} />}
                   label={
                     <React.Fragment>
-                      I have read the <Link>terms and conditions</Link>
+                      He leído los <Link>términos y condiciones</Link>
                     </React.Fragment>
                   }
                 />
@@ -157,10 +172,11 @@ export function SignUpForm(): React.JSX.Element {
           />
           {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
           <Button disabled={isPending} type="submit" variant="contained">
-            Sign up
+            Regístrate
           </Button>
         </Stack>
       </form>
     </Stack>
   );
 }
+
