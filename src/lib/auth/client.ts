@@ -1,6 +1,7 @@
 'use client';
 
 import type { User } from '@/types/user';
+import { API_URL } from '@/config';
 
 function generateToken(): string {
   const arr = new Uint8Array(12);
@@ -57,14 +58,36 @@ class AuthClient {
     // Make API request
 
     // We do not handle the API, so we'll check if the credentials match with the hardcoded ones.
-    if (email !== 'sofia@devias.io' || password !== 'Secret1') {
+    /* if (email !== 'sofia@devias.io' || password !== 'Secret1') {
       return { error: 'Invalid credentials' };
+    } */
+
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+  
+      if (!response.ok) {
+        const { error } = await response.json();
+        return { error: error || 'Invalid credentials' };
+      }
+  
+      const token = data.access_token; // Aseguramos de traer el token
+      localStorage.setItem('custom-auth-token', token); // Guarda el token en localStorage
+  
+      return {};
+    } catch (error) {
+      return { error: 'Network error' };
     }
 
-    const token = generateToken();
-    localStorage.setItem('custom-auth-token', token);
-
-    return {};
+    /* const token = generateToken();
+    localStorage.setItem('custom-auth-token', token); */
   }
 
   async resetPassword(_: ResetPasswordParams): Promise<{ error?: string }> {
