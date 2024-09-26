@@ -27,16 +27,16 @@ export default function Page(): React.JSX.Element {
           <Typography variant="h4">Inventory</Typography>
           <Stack sx={{ alignItems: 'center' }} direction="row" spacing={1}>
             <Button color="inherit" startIcon={<UploadIcon fontSize="var(--icon-fontSize-md)" />}>
-              Import
+              Importar
             </Button>
             <Button color="inherit" startIcon={<DownloadIcon fontSize="var(--icon-fontSize-md)" />}>
-              Export
+              Exportar
             </Button>
           </Stack>
         </Stack>
         <div>
           <Button startIcon={<PlusIcon fontSize="var(--icon-fontSize-md)" />} variant="contained">
-            Add
+            Añadir
           </Button>
         </div>
       </Stack>
